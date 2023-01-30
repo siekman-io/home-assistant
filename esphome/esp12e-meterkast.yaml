@@ -1,0 +1,93 @@
+# ESPHOME DEFAULT CONFIGURATION
+################################################################################
+substitutions:
+  plug_name: esp12e_meterkast
+  plug_friendly_name: Meterkast
+  wifi_ssid: !secret wifi_name
+  wifi_password: !secret wifi_code
+  api_pw: !secret api_password
+  ota_pw: !secret ota_password
+
+esphome:
+  name: ${plug_name}
+  platform: ESP8266
+  board: nodemcuv2
+
+# WIFI CONNECTION
+wifi:
+  ssid: ${wifi_ssid}
+  password: ${wifi_password}
+  domain: !secret domain
+  fast_connect: true
+  ap:
+    ssid: ${plug_name}
+    password: "qwe12345"
+    
+# LOGGING
+debug:
+logger:
+  level: debug
+
+# HOMEASSISTANT API
+api:
+  password: ${api_pw}
+
+# OVER THE AIR UPDATES
+ota:
+  password: ${ota_pw}
+
+# WEBSERVER
+web_server:
+  port: 80
+
+captive_portal:
+
+# TIME SYNC HOMEASSISTANT SERVER
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
+# DEFAULT SENSORS ESP8266 ESP32
+################################################################################
+
+sensor:
+  - platform: wifi_signal
+    name: "${plug_friendly_name} WiFi Signal"
+    update_interval: 60s
+  - platform: uptime
+    name: "${plug_friendly_name} Uptime"
+
+    
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: ${plug_friendly_name} IP Address
+    ssid:
+      name: ${plug_friendly_name} Connected SSID
+    bssid:
+      name: ${plug_friendly_name} Connected BSSID
+
+
+
+# EDIT FROM HERE
+###################################
+
+# Binary sensor representing the
+# Doorbell button push.
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: D3
+      mode: INPUT_PULLUP
+      inverted: yes
+    name: "Deurbel"
+    filters:
+    # Small filter, to debounce the button press.
+     - delayed_on: 25ms
+     - delayed_off: 25ms
+    on_click:
+      then:
+#        - switch.toggle:
+#            id: bagno_relay
+

@@ -1,0 +1,576 @@
+# Ledstrip van de action Keuken
+substitutions:
+  plug_name: ledstrip02
+  plug_friendly_name: Ledstrip Keuken
+  wifi_ssid: !secret wifi_name
+  wifi_password: !secret wifi_code
+  api_pw: !secret api_password
+  ota_pw: !secret ota_password
+
+esphome:
+  name: ${plug_name}
+  platform: ESP8266
+  board: esp01_1m
+
+# WiFi connection
+wifi:
+  ssid: ${wifi_ssid}
+  password: ${wifi_password}
+  domain: !secret domain
+  fast_connect: true
+  ap:
+    ssid: ${plug_name}
+    password: "qwe12345"
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: ${api_pw}
+
+# Enable over-the-air updates
+ota:
+  password: ${ota_pw}
+
+# Enable Web server
+web_server:
+  port: 80
+
+# Sync time with Home Assistant.
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
+#==============================================================
+
+remote_receiver:
+  pin: 
+    number: 0
+    inverted: true
+  dump: all
+#  filter: 50us
+
+output:
+  - platform: esp8266_pwm
+    id: pwm_rood
+    pin: 4
+    frequency: 1000 Hz
+  - platform: esp8266_pwm
+    id: pwm_blauw
+    pin: 14
+    frequency: 1000 Hz
+  - platform: esp8266_pwm
+    id: pwm_groen
+    pin: 12
+    frequency: 1000 Hz
+  - platform: esp8266_pwm
+    id: pwm_wit
+    pin: 13
+    frequency: 1000 Hz
+    
+light:
+  - platform: rgbw
+    id: strip
+    name: "Ledstrip Keuken"
+    red: pwm_rood
+    green: pwm_groen
+    blue: pwm_blauw
+    white: pwm_wit
+    effects:
+      - random:
+          name: smooth
+          transition_length: 4s
+          update_interval: 5s
+      - strobe:
+          name: strobe
+          colors:
+            - state: True
+              brightness: 80%
+              red: 100%
+              green: 90%
+              blue: 0%
+              white: 0%
+              duration: 500ms
+            - state: False
+              duration: 250ms
+            - state: True
+              brightness: 80%
+              red: 0%
+              green: 100%
+              blue: 0%
+              white: 0%
+              duration: 500ms
+            - state: False
+              duration: 250ms
+            - state: True
+              brightness: 80%
+              red: 0%
+              green: 100%
+              blue: 60%  
+              white: 0%
+              duration: 500ms
+      - flicker:
+          name: flash
+          alpha: 95%
+          intensity: 1.5%
+      - lambda:
+          name: fade
+          update_interval: 1s
+          lambda: |-
+            static int state = 0;
+            auto call = id(strip).turn_on();
+            // Transtion of 1000ms = 1s
+            call.set_transition_length(1000);
+            if (state == 0) {
+              call.set_rgb(1.0, 1.0, 1.0);
+            } else if (state == 1) {
+              call.set_rgb(1.0, 0.0, 1.0);
+            } else if (state == 2) {
+              call.set_rgb(0.0, 0.0, 1.0);
+            } else {
+              call.set_rgb(1.0, 0.0, 0.0);
+            }
+            call.perform();
+            state += 1;
+            if (state == 4)
+              state = 0;
+binary_sensor:
+  # General status sensor
+  - platform: status
+    name: ${plug_name}_status
+  
+  - platform: remote_receiver
+    id: aan
+    internal: true
+    name: "Afstandsbediening On"
+    nec:
+      address: 0x00F7
+      command: 0xC03F  
+    on_press:
+      then:
+        light.turn_on:
+          id: strip
+      
+  - platform: remote_receiver
+    id: uit
+    internal: true    
+    name: "Afstandsbediening Off"
+    nec:
+      address: 0x00F7
+      command: 0x40BF       
+    on_press:
+      - then:
+         light.turn_off:
+           id: strip 
+
+  - platform: remote_receiver
+    id: feller
+    internal: true
+    name: "Afstandsbediening Brightness Up"
+    nec:
+      address: 0x00F7
+      command: 0x00FF  
+    on_press:
+      then:
+        light.dim_relative:
+          id: strip
+          relative_brightness: 10%
+
+  - platform: remote_receiver
+    id: donkerder
+    internal: true
+    name: "Afstandsbediening Brightness Down"
+    nec:
+      address: 0x00F7
+      command: 0x807F  
+    on_press:
+      then:
+        light.dim_relative:
+          id: strip
+          relative_brightness: -10%
+
+  - platform: remote_receiver
+    id: rood
+    internal: true    
+    name: "Afstandsbediening Rood"
+    nec:
+      address: 0x00F7
+      command: 0x20DF       
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 100%
+           green: 0%
+           blue: 0%  
+           white: 0%  
+
+  - platform: remote_receiver
+    id: fel_rood
+    internal: true    
+    name: "Afstandsbediening Fel Rood"
+    nec:
+      address: 0x00F7
+      command: 0x10EF       
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 100%
+           green: 25%
+           blue: 0%  
+           white: 0%  
+
+  - platform: remote_receiver
+    id: fel_oranje
+    internal: true    
+    name: "Afstandsbediening Fel Oranje"
+    nec:
+      address: 0x00F7
+      command: 0x08F7       
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 100%
+           green: 44%
+           blue: 1%  
+           white: 0%  
+
+  - platform: remote_receiver
+    id: oranje
+    internal: true    
+    name: "Afstandsbediening Oranje"
+    nec:
+      address: 0x00F7
+      command: 0x30CF   
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 100%
+           green: 37%
+           blue: 0%  
+           white: 0% 
+
+  - platform: remote_receiver
+    id: geel
+    internal: true    
+    name: "Afstandsbediening Geel"
+    nec:
+      address: 0x00F7
+      command: 0x28D7  
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 100%
+           green: 72%
+           blue: 0%  
+           white: 0% 
+
+  - platform: remote_receiver
+    id: groen
+    internal: true    
+    name: "Afstandsbediening Groen"
+    nec:
+      address: 0x00F7
+      command: 0xA05F       
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 0%
+           green: 100%
+           blue: 0%  
+           white: 0%
+
+  - platform: remote_receiver
+    id: fel_groen
+    internal: true    
+    name: "Afstandsbediening Fel Groen"
+    nec:
+      address: 0x00F7
+      command: 0x906F
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 24%
+           green: 100%
+           blue: 43%  
+           white: 0%
+
+  - platform: remote_receiver
+    id: turkoois
+    internal: true    
+    name: "Afstandsbediening Turkoois"
+    nec:
+      address: 0x00F7
+      command: 0xB04F
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 0%
+           green: 100%
+           blue: 60%  
+           white: 0%
+
+  - platform: remote_receiver
+    id: donker_turkoois
+    internal: true    
+    name: "Afstandsbediening Donker Turkoois"
+    nec:
+      address: 0x00F7
+      command: 0x8877
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 0%
+           green: 100%
+           blue: 95%  
+           white: 0%
+
+  - platform: remote_receiver
+    id: donker_turkoois2
+    internal: true    
+    name: "Afstandsbediening Donker Turkoois 2"
+    nec:
+      address: 0x00F7
+      command: 0xA857
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 0%
+           green: 58%
+           blue: 100%  
+           white: 0%
+
+  - platform: remote_receiver
+    id: blauw
+    internal: true    
+    name: "Afstandsbediening Blauw"
+    nec:
+      address: 0x00F7
+      command: 0x609F       
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 0%
+           green: 0%
+           blue: 100%  
+           white: 0% 
+
+  - platform: remote_receiver
+    id: donker_blauw
+    internal: true    
+    name: "Afstandsbediening Donker Blauw"
+    nec:
+      address: 0x00F7
+      command: 0x50AF   
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 28%
+           green: 0%
+           blue: 82%  
+           white: 0% 
+
+  - platform: remote_receiver
+    id: bordeaux
+    internal: true    
+    name: "Afstandsbediening Bordeaux"
+    nec:
+      address: 0x00F7
+      command: 0x708F
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 56%
+           green: 0%
+           blue: 80%  
+           white: 0%
+
+  - platform: remote_receiver
+    id: purper
+    internal: true    
+    name: "Afstandsbediening Purper"
+    nec:
+      address: 0x00F7
+      command: 0x48B7
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 88%
+           green: 0%
+           blue: 88%  
+           white: 0%
+
+  - platform: remote_receiver
+    id: magenta
+    internal: true    
+    name: "Afstandsbediening Magenta"
+    nec:
+      address: 0x00F7
+      command: 0x6897
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip  
+           brightness: 100%
+           red: 100%
+           green: 0%
+           blue: 67%  
+           white: 0%
+
+  - platform: remote_receiver
+    id: wit
+    internal: true    
+    name: "Afstandsbediening Wit"
+    nec:
+      address: 0x00F7
+      command: 0xE01F       
+    on_press:
+      - then:
+         light.turn_on:
+           id: strip
+           brightness: 100%
+           red: 0%
+           green: 0%
+           blue: 0%  
+           white: 100% 
+
+  - platform: remote_receiver
+    id: flash
+    internal: true    
+    name: "Afstandsbediening Flash"
+    nec:
+      address: 0x00F7
+      command: 0xD02F     
+    on_press:
+      - then:
+        - light.turn_on:
+            id: strip
+            effect: flash
+
+  - platform: remote_receiver
+    id: strobe
+    internal: true    
+    name: "Afstandsbediening Strobe"
+    nec:
+      address: 0x00F7
+      command: 0xF00F       
+    on_press:
+      - then:
+        - light.turn_on:
+            id: strip
+            effect: strobe
+
+  - platform: remote_receiver
+    id: fade
+    internal: true    
+    name: "Afstandsbediening Fade"
+    nec:
+      address: 0x00F7
+      command: 0xC837      
+    on_press:
+      - then:
+        - light.turn_on:
+            id: strip
+            effect: fade
+
+  - platform: remote_receiver
+    id: smooth
+    internal: true    
+    name: "Afstandsbediening Smooth"
+    nec:
+      address: 0x00F7
+      command: 0xE817   
+    on_press:
+      - then:
+        - light.turn_on:
+            id: strip
+            effect: smooth
+
+#==============================================================
+
+# Sensors with specific and general information
+sensor:
+  # Extra sensor to keep an eye on the Wi-Fi signal
+  - platform: wifi_signal
+    name: ${plug_name}_Wi-Fi_Signal
+    update_interval: 60s
+
+# Extra sensor to keep track of plug uptime
+  - platform: uptime
+    name: Uptime
+    id: uptime_s
+    update_interval: 15s
+
+# Exposed switches
+switch:
+  - platform: restart
+    name: ${plug_name}_restart
+
+# Text sensors with general information
+text_sensor:
+  # Expose ESPHome version as sensor.
+  - platform: version
+    name: ${plug_name}_esphome_version
+  # Expose WiFi information as sensors.
+  - platform: wifi_info
+    ip_address:
+      name: ${plug_name}_wifi_ip
+      icon: mdi:ip
+    ssid:
+      name: ${plug_name}_wifi_ssid
+      icon: mdi:wifi
+    bssid:
+      name: ${plug_name}_wifi_bssid
+      icon: mdi:wifi
+  - platform: template
+    name: ${plug_name}_Uptime_Sensor
+    lambda: |-
+      uint32_t dur = id(uptime_s).state;
+      int dys = 0;
+      int hrs = 0;
+      int mnts = 0;
+      if (dur > 86399) {
+        dys = trunc(dur / 86400);
+        dur = dur - (dys * 86400);
+      }
+      if (dur > 3599) {
+        hrs = trunc(dur / 3600);
+        dur = dur - (hrs * 3600);
+      }
+      if (dur > 59) {
+        mnts = trunc(dur / 60);
+        dur = dur - (mnts * 60);
+      }
+      char buffer[17];
+      sprintf(buffer, "%ud %02uh %02um %02us", dys, hrs, mnts, dur);
+      return {buffer};
+    icon: mdi:clock-start
+    update_interval: 15s

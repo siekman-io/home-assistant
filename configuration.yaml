@@ -1,0 +1,22 @@
+# HomeAssistant configuration
+default_config:
+history:
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - !secret proxy1
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+# Configurations
+recorder: !include_dir_merge_named database
+climate: !include_dir_merge_list climate
+group: !include_dir_merge_list groups.yaml
+automation: !include automations.yaml
+script: !include_dir_merge_list scripts.yaml
+scene: !include_dir_merge_list scenes.yaml
+proxmoxve: !include_dir_merge_list proxmox
+shell_command: !include_dir_merge_named shell_command/
+afvalbeheer: !include misc/afvalbeheer.yaml

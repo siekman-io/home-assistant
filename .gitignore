@@ -1,0 +1,28 @@
+# Gitignore file to exclude some files
+
+# Whitelist some files
+!*.yaml
+!.gitignore
+
+
+
+# Ignore some folders
+.cloud
+.storage
+custom_components
+node-red
+image
+tts
+zigbee2mqtt
+themes
+www
+
+
+
+# Ensure this files are ignore, with data that i dont want to be public
+.ssh
+aircast.xml
+secrets.yaml
+*.db
+*.log
+*.log.*

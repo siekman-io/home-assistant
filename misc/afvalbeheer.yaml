@@ -1,0 +1,8 @@
+wastecollector: !secret collector
+resources:
+  - restafval
+  - gft
+  - papier
+  - pmd
+postcode: !secret postcode
+builtinicons: 1

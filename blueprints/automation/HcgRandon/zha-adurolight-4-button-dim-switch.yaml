@@ -1,0 +1,60 @@
+blueprint:
+  name: ZHA - ADUROLIGHT ERIA 4 Button Dimming Switch
+  description: Automate ADUROLIGHT ERIA 4 Button Dimming Switch using ZHA events.
+  domain: automation
+  input:
+    target_switch:
+      name: Select Target Switch
+      selector:
+        device:
+          integration: zha
+          manufacturer: ADUROLIGHT
+          model: Adurolight_NCC
+          multiple: false
+    turn_on:
+      name: Pressed On
+      description: Action to run when "On" is pressed
+      default: []
+      selector:
+        action: {}
+    dim_up:
+      name: Pressed Dim Up
+      description: Action to run when "Dim Up" is pressed
+      default: []
+      selector:
+        action: {}
+    dim_down:
+      name: Pressed Dim Down
+      description: Action to run when "Dim Down" is pressed
+      default: []
+      selector:
+        action: {}
+    turn_off:
+      name: Pressed Off
+      description: Action to run when "Off" is pressed
+      default: []
+      selector:
+        action: {}
+  source_url: https://gist.github.com/HcgRandon/1ae2079e25105ebb9d01a70ef0acb35d
+mode: restart
+trigger:
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input target_switch
+action:
+- variables:
+    command: '{{ trigger.event.data.command }}'
+    step: '{{ trigger.event.data.args[0] }}'
+- choose:
+  - conditions: '{{ command == ''on'' }}'
+    sequence: !input turn_on
+  - conditions: '{{ command == ''off'' }}'
+    sequence: !input turn_off
+  - conditions: '{{ command == ''step'' }}'
+    sequence:
+    - choose:
+      - conditions: '{{ step == 0 }}'
+        sequence: !input dim_up
+      - conditions: '{{ step == 1 }}'
+        sequence: !input dim_down

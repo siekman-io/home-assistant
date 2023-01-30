@@ -1,0 +1,13 @@
+- host: !secret PVEHOST2
+  username: !secret PVEUSER
+  password: !secret PVEPASS
+  verify_ssl: false
+  realm: pam
+  nodes:
+    - node: pve2
+      vms:
+        - 102
+        - 108
+      containers:
+        - 505
+        - 506

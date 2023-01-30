@@ -1,0 +1,833 @@
+- id: '1641593065468'
+  alias: switch.woonkamer.on
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 803cfcc4a946a4a0e9bf57881d2c10f0
+    type: action
+    subtype: 'on'
+    discovery_id: 0x00158d0001d07c12 action_on
+  condition: []
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      device_id:
+      - 5e8f3d886a4b05462c817230ed0ebc2b
+      - bacc5b7fe53462ff64cb41b3281d9e90
+      - e58806cd1f431f9994df8b11eca7442f
+      - 4a0674a29ec7f4abed0d039848681877
+      - c0bbd24a7ab2993e98fefabda739a12d
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.woonkamer_genie
+    enabled: false
+  - if:
+    - condition: time
+      after: '19:00:00'
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+      - sun
+    then:
+    - service: switch.turn_on
+      data: {}
+      target:
+        entity_id: switch.woonkamer_genie
+  mode: single
+- id: '1641686393984'
+  alias: Deurbel
+  description: ''
+  trigger:
+  - type: turned_on
+    platform: device
+    device_id: 6950356f089d9c6730f0cc5452d9f54e
+    entity_id: binary_sensor.deurbel
+    domain: binary_sensor
+  condition: []
+  action:
+  - service: tts.cloud_say
+    data:
+      entity_id: media_player.google_speaker_woonkamer
+      message: De Deurbel gaat
+  - service: tts.cloud_say
+    data:
+      entity_id: media_player.gm_grote_slaapkamer
+      message: De Deurbel gaat
+  - service: tts.cloud_say
+    data:
+      entity_id: media_player.keuken
+      message: De Deurbel gaat
+  - service: tts.cloud_say
+    data:
+      entity_id: media_player.kantoor
+      message: De Deurbel gaat
+  - service: notify.mobile_app_js_pm14
+    data:
+      title: Deurbel
+      message: Tring Tring
+  - service: notify.mobile_app_jennifer_telefoon
+    data:
+      message: De Deurbel gaat
+      title: Deurbel Thuis
+  mode: single
+- id: '1642806282174'
+  alias: HealthChecks.io
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition: []
+  action:
+  - service: shell_command.healthcheck
+  mode: single
+- id: '1644356596967'
+  alias: switch.woonkamer.off
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 803cfcc4a946a4a0e9bf57881d2c10f0
+    type: action
+    subtype: 'off'
+    discovery_id: 0x00158d0001d07c12 action_off
+  condition: []
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id:
+      - light.eettafel_lamp
+      - light.schemerlamp_tv
+      - light.bloom_computer
+      - light.iris_bank
+      - light.shelly_shdm_1_d0aa65
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.woonkamer_genie
+  - service: climate.set_temperature
+    data:
+      temperature: 18
+    target:
+      entity_id: climate.toon_thermostat
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id:
+      - switch.shelly_shplg_s_7ae6ad
+      - switch.speakers_relais
+  mode: single
+- id: '1644444085541'
+  alias: Motion Keuken
+  description: ''
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      light_target:
+        area_id: keuken
+      no_motion_wait: 720
+      motion_entity: binary_sensor.motionsensor_keuken_occupancy
+- id: '1644444439586'
+  alias: Motion Overloop
+  description: ''
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.0x84fd27fffeaa9d36_occupancy
+      light_target:
+        device_id:
+        - 9987846de620c1d696706cb9c206435d
+- id: '1644506953046'
+  alias: Alles uit vannacht
+  description: ''
+  trigger:
+  - platform: time
+    at: 01:30:00
+  condition: []
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      area_id:
+      - woonkamer
+      - overloop
+      - keuken
+      - badkamer
+      - achtertuin
+  - service: climate.set_temperature
+    data:
+      temperature: 17
+  mode: single
+- id: '1644507254342'
+  alias: Gang Licht uit
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: 35083a0859fb9950fbbcbef0cd994de7
+    entity_id: light.lamp_gang
+    domain: light
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 35083a0859fb9950fbbcbef0cd994de7
+    entity_id: light.lamp_gang
+    domain: light
+  mode: single
+- id: '1644507521437'
+  alias: Voorzolderlicht uit
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: 01b104464517aa7f281a27cce6599598
+    entity_id: light.lamp_voorzolder
+    domain: light
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 01b104464517aa7f281a27cce6599598
+    entity_id: light.lamp_voorzolder
+    domain: light
+  mode: single
+- id: '1650221900748'
+  alias: Voordeurlamp-aan
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: 0
+  condition: []
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      device_id: e6cd6f0d7147ae21deea597fb2f9d7e1
+  mode: single
+- id: '1650222040498'
+  alias: Voordeurlamp-uit
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunrise
+    offset: 0
+  condition: []
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      device_id: e6cd6f0d7147ae21deea597fb2f9d7e1
+  mode: single
+- id: '1659893746280'
+  alias: Zonnewering Sluiten
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: -00:45:00
+  condition: []
+  action:
+  - device_id: 1002dfe00de015fa57654f98071b22e4
+    domain: cover
+    entity_id: cover.shelly_shsw_25_c45bbe78fd72
+    type: set_position
+    position: 0
+  - device_id: bf3f8c2ceb90a2a5bd36da069fe6d8ea
+    domain: cover
+    entity_id: cover.shelly_shsw_25_4c75253337bc
+    type: set_position
+    position: 0
+  mode: single
+- id: '1663621540535'
+  alias: Slapen Jouke
+  description: 'Telefoon gaat op de oplader en Jouke gaat slapen
+
+    '
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.iphone_jouke_battery_state
+    - sensor.iphone
+    from: Not Charging
+    to: Charging
+  condition:
+  - condition: time
+    after: '23:00:00'
+    before: 00:00:00
+  action:
+  - service: media_player.play_media
+    target:
+      entity_id: media_player.kantoor
+    data:
+      media_content_id: media-source://tts/cloud?message=Welterusten+Jouke&language=nl-NL&gender=female
+      media_content_type: provider
+    metadata:
+      title: Welterusten Jouke
+      thumbnail: https://brands.home-assistant.io/_/cloud/logo.png
+      media_class: app
+      children_media_class:
+      navigateIds:
+      - {}
+      - media_content_type: app
+        media_content_id: media-source://tts
+      - media_content_type: provider
+        media_content_id: media-source://tts/cloud?message=Welterusten+Jouke&language=nl-NL&gender=female
+  - service: light.turn_off
+    data: {}
+    target:
+      area_id:
+      - voorzolder
+      - overloop
+      - schuur
+      - overloop
+      - keuken
+      - hal
+      - badkamer
+      - gang
+  - service: light.toggle
+    data:
+      brightness_pct: 5
+    target:
+      area_id: grote_slaapkamer
+  mode: single
+- id: '1663623674116'
+  alias: Watch_Zonnescherm_open
+  description: Zonnescherm voor en achter open
+  trigger:
+  - platform: event
+    event_type: ios.action_fired
+    event_data:
+      actionName: zonnescherm_open
+  condition: []
+  action:
+  - device_id: 1002dfe00de015fa57654f98071b22e4
+    domain: cover
+    entity_id: cover.shelly_shsw_25_c45bbe78fd72
+    type: set_position
+    position: 100
+  - device_id: bf3f8c2ceb90a2a5bd36da069fe6d8ea
+    domain: cover
+    entity_id: cover.shelly_shsw_25_4c75253337bc
+    type: set_position
+    position: 100
+  mode: single
+- id: '1663623804556'
+  alias: Watch_Zonnescherm_dicht
+  description: Zonnescherm voor en achter dicht
+  trigger:
+  - platform: event
+    event_type: ios.action_fired
+    event_data:
+      actionName: zonnescherm_dicht
+  condition: []
+  action:
+  - device_id: 1002dfe00de015fa57654f98071b22e4
+    domain: cover
+    entity_id: cover.shelly_shsw_25_c45bbe78fd72
+    type: set_position
+    position: 0
+  - device_id: bf3f8c2ceb90a2a5bd36da069fe6d8ea
+    domain: cover
+    entity_id: cover.shelly_shsw_25_4c75253337bc
+    type: set_position
+    position: 0
+  mode: single
+- id: '1663624848086'
+  alias: Alarm_Zonnescherm_windalarm
+  description: Zonnescherm in vanwege wind (source buienradar)
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.buienradar_wind_speed
+    above: 20
+  condition: []
+  action:
+  - service: notify.mobile_app_iphone_jouke
+    data:
+      message: De zonneschermen gaan in ivm te veel wind
+      title: Alarm - Zonnescherm actie
+  - service: automation.trigger
+    data: {}
+    target:
+      entity_id: automation.zonnewering_sluiten
+  mode: single
+- id: '1663626065200'
+  alias: Info - Vaatwasser klaar
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.shelly_shplg2_1_25b83b_current_consumption
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    above: 10
+  condition: []
+  action:
+  - wait_for_trigger:
+    - platform: numeric_state
+      entity_id: sensor.shelly_shplg2_1_25b83b_current_consumption
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
+      below: 10
+    timeout:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - service: notify.mobile_app_iphone_jouke
+    data:
+      message: Vaatwasser is klaar
+      title: Informatie
+  - service: notify.mobile_app_js_air
+    data:
+      message: Vaatwasser is klaar
+      title: Informatie
+  - parallel:
+    - if:
+      - condition: time
+        before: '22:00:00'
+        after: 07:30:00
+        weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+        - sat
+      then:
+      - parallel:
+        - service: media_player.play_media
+          target:
+            entity_id: media_player.google_speaker_woonkamer
+          data:
+            media_content_id: media-source://tts/cloud?message=Vaatwasser+is+klaar&language=nl-NL&gender=female
+            media_content_type: provider
+          metadata:
+            title: Vaatwasser is klaar
+            thumbnail: https://brands.home-assistant.io/_/cloud/logo.png
+            media_class: app
+            children_media_class:
+            navigateIds:
+            - {}
+            - media_content_type: app
+              media_content_id: media-source://tts
+            - media_content_type: provider
+              media_content_id: media-source://tts/cloud?message=Vaatwasser+is+klaar&language=nl-NL&gender=female
+        - service: media_player.play_media
+          target:
+            entity_id: media_player.keuken_google_home_mini
+          data:
+            media_content_id: media-source://tts/cloud?message=Vaatwasser+is+klaar&language=nl-NL&gender=female
+            media_content_type: provider
+          metadata:
+            title: Vaatwasser is klaar
+            thumbnail: https://brands.home-assistant.io/_/cloud/logo.png
+            media_class: app
+            children_media_class:
+            navigateIds:
+            - {}
+            - media_content_type: app
+              media_content_id: media-source://tts
+            - media_content_type: provider
+              media_content_id: media-source://tts/cloud?message=Vaatwasser+is+klaar&language=nl-NL&gender=female
+  mode: single
+- id: '1663878674492'
+  alias: ios_rolluik_open
+  description: Rolluik open 0%
+  trigger:
+  - platform: event
+    event_type: ios.action_fired
+    event_data:
+      actionName: rolluik_open
+  condition: []
+  action:
+  - device_id: 1a67c12af9e0a73fc593cd4798042694
+    domain: cover
+    entity_id: cover.shelly_shsw_25_00ac2a
+    type: set_position
+    position: 0
+  mode: single
+- id: '1663878742381'
+  alias: ios_rolluik_dicht
+  description: Rolluik open 75%
+  trigger:
+  - platform: event
+    event_type: ios.action_fired
+    event_data:
+      actionName: rolluik_dicht
+  condition: []
+  action:
+  - device_id: 1a67c12af9e0a73fc593cd4798042694
+    domain: cover
+    entity_id: cover.shelly_shsw_25_00ac2a
+    type: set_position
+    position: 75
+  mode: single
+- id: '1664655433573'
+  alias: Tag1.scanned.number
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: 00fff68d-dca1-4eeb-96eb-3ba432de7283
+  condition: []
+  action:
+  - service: input_number.set_value
+    data:
+      value: 1
+    target:
+      entity_id: input_number.tag1_scanned
+  mode: single
+- id: '1664702772041'
+  alias: medicatie.innemen
+  description: ''
+  trigger: []
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: input_number.tag1_scanned
+        below: 1
+      sequence:
+      - service: timer.start
+        data: {}
+        target:
+          entity_id: timer.timer_medicatie_timer
+      - service: notify.mobile_app_iphone_jouke
+        data:
+          message: meds
+          title: take
+    - conditions:
+      - condition: numeric_state
+        entity_id: input_number.tag1_scanned
+        above: 0
+      sequence:
+      - service: timer.cancel
+        data: {}
+        target:
+          entity_id: timer.timer_medicatie_timer
+      - service: notify.mobile_app_iphone_jouke
+        data:
+          message: Goood !!
+      - service: logbook.log
+        data:
+          message: Medicijnen ingenomen
+  mode: single
+- id: '1664725475892'
+  alias: Tag2 scanned
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: bd3285f4-71f2-463e-9f94-17cf8372059e
+  condition: []
+  action:
+  - service: timer.cancel
+    data: {}
+    target:
+      entity_id: timer.timer_medicatie_timer
+  mode: single
+- id: '1664738746584'
+  alias: Advanced medication reminder
+  description: ''
+  use_blueprint:
+    path: Aohzan/medication_reminder.yaml
+    input:
+      reminder_time: 07:45:00
+      notify_device: b1a305f35fe979043a75723acaf6a3cd
+      input_boolean: input_boolean.medicijnen
+      ask_later_wait_time: 5
+- id: '1664741624792'
+  alias: Timer.Medicatie
+  description: ''
+  trigger:
+  - platform: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.timer_medicatie_timer
+  condition: []
+  action:
+  - service: automation.trigger
+    data:
+      skip_condition: false
+    target:
+      entity_id: automation.medicatie_ochtend
+  mode: single
+- id: '1664746150055'
+  alias: schedule.medicatie.ochtend
+  description: ''
+  trigger:
+  - platform: time
+    at: input_datetime.time_medicatie_ochtend
+  - platform: time
+    at: input_datetime.time_medicatie_avond
+  condition:
+  - condition: time
+    before: 00:00:00
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    after: 00:00:00
+  action:
+  - service: automation.trigger
+    data: {}
+    target:
+      entity_id: automation.medicatie_ochtend
+  - service: input_number.set_value
+    data:
+      value: 0
+    target:
+      entity_id: input_number.tag1_scanned
+  mode: single
+- id: '1664919957968'
+  alias: schedule.medicatie.weekend
+  description: ''
+  trigger:
+  - platform: time
+    at: input_datetime.time_medicatie_weekend_ochtend
+  - platform: time
+    at: input_datetime.time_medicatie_avond
+  condition:
+  - condition: time
+    before: 00:00:00
+    weekday:
+    - sun
+    - sat
+    after: 00:00:00
+  action:
+  - service: automation.trigger
+    data: {}
+    target:
+      entity_id: automation.medicatie_ochtend
+  - service: input_number.set_value
+    data:
+      value: 0
+    target:
+      entity_id: input_number.tag1_scanned
+  mode: single
+- id: '1664920241022'
+  alias: tag2.announce.boodschappen.auto
+  description: Maakt een melding dat de boodschappen uit de auto moeten
+  trigger:
+  - platform: tag
+    tag_id: bd3285f4-71f2-463e-9f94-17cf8372059e
+  condition: []
+  action:
+  - parallel:
+    - service: tts.cloud_say
+      data:
+        entity_id: media_player.google_mini_diego
+        message: Kom even naar de auto , helpen met boodschappen
+        language: nl
+    - service: tts.cloud_say
+      data:
+        entity_id: media_player.gm_grote_slaapkamer
+        message: Kom even naar de auto , helpen met boodschappen
+        language: nl
+    - service: tts.cloud_say
+      data:
+        entity_id: media_player.google_mini_tygo
+        message: Kom even naar de auto , helpen met boodschappen
+        language: nl
+    - service: tts.cloud_say
+      data:
+        entity_id: media_player.google_speaker_woonkamer
+        message: Kom even naar de auto , helpen met boodschappen
+        language: nl
+    - service: tts.cloud_say
+      data:
+        entity_id: media_player.kantoor
+        message: Kom even naar de auto , helpen met boodschappen
+        language: nl
+    - service: tts.cloud_say
+      data:
+        entity_id: media_player.kantoor
+        message: Kom even naar de auto , helpen met boodschappen
+        language: nl
+  mode: single
+- id: '1665855114610'
+  alias: switch.rolluik.achter.dicht
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 803cfcc4a946a4a0e9bf57881d2c10f0
+    type: action
+    subtype: brightness_step_down
+    discovery_id: 0x00158d0001d07c12 action_brightness_step_down
+  condition: []
+  action:
+  - service: cover.set_cover_position
+    data:
+      position: 83
+    target:
+      entity_id: cover.shelly_shsw_25_00ac2a
+  mode: single
+- id: '1665855184945'
+  alias: switch.roluik.achter.open
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 803cfcc4a946a4a0e9bf57881d2c10f0
+    type: action
+    subtype: brightness_step_up
+    discovery_id: 0x00158d0001d07c12 action_brightness_step_up
+  condition: []
+  action:
+  - service: cover.set_cover_position
+    data:
+      position: 0
+    target:
+      entity_id: cover.shelly_shsw_25_00ac2a
+  mode: single
+- id: '1666619063722'
+  alias: switch.lamp.keuken.on
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 704026b0f66f7c1f2f9466ae4806a60e
+    type: action
+    subtype: on_press
+    discovery_id: 0x0017880108f59bb8 action_on_press
+  condition: []
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id:
+      - light.lamp_keuken
+      - light.ledstrip_keuken
+  mode: single
+- id: '1666619152470'
+  alias: switch.keuken.licht.off
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 704026b0f66f7c1f2f9466ae4806a60e
+    type: action
+    subtype: off_press
+    discovery_id: 0x0017880108f59bb8 action_off_press
+  condition: []
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id:
+      - light.lamp_keuken
+      - light.ledstrip_keuken
+  mode: single
+- id: '1668540520627'
+  alias: Tag 3 Scanned - Pil Tygo
+  description: Heeft Tygo zijn pil ingenomen?
+  trigger:
+  - platform: tag
+    tag_id: 96899d19-e982-4487-b1cf-f54e8361cd4a
+  condition: []
+  action:
+  - service: logbook.log
+    data:
+      name: Tygo
+      message: Pil ingenomen
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.tag3_scanned
+  - delay:
+      hours: 20
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.tag3_scanned
+  - service: notify.mobile_app_js_pm14
+    data:
+      message: Tygo heeft zijn pil ingenomen.
+      title: Medicatie Tygo
+  mode: single
+- id: '1668545159401'
+  alias: Check Tygo medicatie
+  description: ''
+  trigger:
+  - platform: time
+    at: input_datetime.tijd_tygo_meds
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: automation.tag_tag_3_is_gescand
+      state: 'off'
+  action:
+  - service: notify.mobile_app_js_pm14
+    data:
+      title: Medicatie Tygo
+      message: Tygo is medicatie vergeten of heeft vergeten te scannen.
+  mode: single
+- id: '1668709053069'
+  alias: Verwarming-ochtend
+  description: ''
+  trigger:
+  - platform: time
+    at: 06:30:00
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 21
+    target:
+      entity_id: climate.toon_thermostat
+  mode: single
+- id: '1668709124344'
+  alias: verwarming-ochtend-uit
+  description: ''
+  trigger:
+  - platform: time
+    at: '10:00:00'
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 18
+    target:
+      entity_id: climate.toon_thermostat
+  mode: single
+- id: '1671785605949'
+  alias: Diego
+  description: ''
+  trigger: []
+  condition: []
+  action:
+  - service: tts.cloud_say
+    data:
+      entity_id: media_player.diego_slaapkamer
+      message: ' Wakker worden pakketje voor de deur en bel papa'
+      language: nl
+  - service: tts.cloud_say
+    data:
+      message: ' Wakker worden pakketje voor de deur en u bel papa'
+      entity_id: media_player.google_mini_diego
+      language: nl
+  mode: single

@@ -1,0 +1,71 @@
+# ESPHOME DEFAULT CONFIGURATION
+################################################################################
+substitutions: 
+  plug_name: esp-01
+  plug_friendly_name: esp-01
+  wifi_ssid: !secret wifi_name
+  wifi_password: !secret wifi_code
+  api_pw: !secret api_password
+  ota_pw: !secret ota_password
+
+esphome:
+  name: ${plug_name}
+  platform: ESP8266
+  board: esp01_1m
+
+# WIFI CONNECTION
+wifi:
+  ssid: ${wifi_ssid}
+  password: ${wifi_password}
+  domain: .local.siekman.io
+  fast_connect: true
+  ap:
+    ssid: ${plug_name}
+    password: "qwe12345"
+    
+# LOGGING
+#debug:
+logger:
+#  level: debug
+  baud_rate: 0 #need this to free up UART pins
+
+# HOMEASSISTANT API
+api:
+  password: ${api_pw}
+
+# OVER THE AIR UPDATES
+ota:
+  password: ${ota_pw}
+
+# WEBSERVER
+web_server:
+  port: 80
+
+captive_portal:
+
+# TIME SYNC HOMEASSISTANT SERVER
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
+# DEFAULT SENSORS ESP8266 ESP32
+################################################################################
+
+sensor:
+  - platform: wifi_signal
+    name: "${plug_friendly_name} WiFi Signal"
+    update_interval: 60s
+  - platform: uptime
+    name: "${plug_friendly_name} Uptime"
+    
+switch:
+  - platform: gpio
+    pin: GPIO0
+    id: relay
+  - platform: template
+    name: "Gate Remote"
+    icon: "mdi:gate"
+    turn_on_action:
+    - switch.turn_on: relay
+    - delay: 500ms
+    - switch.turn_off: relay
