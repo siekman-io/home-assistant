@@ -1,33 +1,38 @@
 # ESPHOME DEFAULT CONFIGURATION
 ################################################################################
-substitutions: 
-  plug_name: esp-01
-  plug_friendly_name: esp-01
+
+# DESCRIPTION 
+# LOCATION : WOONKAMER
+
+
+substitutions:
+  plug_name: bluetooth-proxy-1
+  plug_friendly_name: bluetooth-proxy-1
   wifi_ssid: !secret wifi_name
   wifi_password: !secret wifi_code
   api_pw: !secret api_password
   ota_pw: !secret ota_password
+  
 
 esphome:
   name: ${plug_name}
-  platform: ESP8266
-  board: esp01_1m
+  platform: ESP32
+  board: esp32dev
 
 # WIFI CONNECTION
 wifi:
   ssid: ${wifi_ssid}
   password: ${wifi_password}
-  domain: .local.siekman.io
+  domain: !secret domain
   fast_connect: true
   ap:
     ssid: ${plug_name}
     password: "qwe12345"
-    
+
 # LOGGING
-#debug:
+debug:
 logger:
-#  level: debug
-  baud_rate: 0 #need this to free up UART pins
+  level: debug
 
 # HOMEASSISTANT API
 api:
@@ -50,24 +55,14 @@ time:
   - platform: homeassistant
     id: homeassistant_time
 
-# DEFAULT SENSORS ESP8266 ESP32
-################################################################################
+dashboard_import:
+  package_import_url: github://esphome/bluetooth-proxies/esp32-generic.yaml@main
 
-sensor:
-  - platform: wifi_signal
-    name: "${plug_friendly_name} WiFi Signal"
-    update_interval: 60s
-  - platform: uptime
-    name: "${plug_friendly_name} Uptime"
-    
-switch:
-  - platform: gpio
-    pin: GPIO0
-    id: relay
-  - platform: template
-    name: "Gate Remote"
-    icon: "mdi:gate"
-    turn_on_action:
-    - switch.turn_on: relay
-    - delay: 500ms
-    - switch.turn_off: relay
+esp32_ble_tracker:
+  scan_parameters:
+    interval: 1100ms
+    window: 1100ms
+    active: true
+
+bluetooth_proxy:
+  active: true

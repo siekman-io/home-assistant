@@ -30,7 +30,9 @@ logger:
 
 # HOMEASSISTANT API
 api:
-  password: ${api_pw}
+  port: !secret esp_api_port
+  encryption:
+    key: !secret esp_encryption_key
 
 # OVER THE AIR UPDATES
 ota:

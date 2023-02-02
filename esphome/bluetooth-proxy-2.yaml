@@ -1,12 +1,17 @@
 # ESPHOME DEFAULT CONFIGURATION
 ################################################################################
+
+# DESCRIPTION 
+# LOCATION : GROTE SLAAPKAMER
+
 substitutions:
-  plug_name: esp32_kantoor
-  plug_friendly_name: Kantoor Sensors
+  plug_name: bluetooth-proxy-2
+  plug_friendly_name: bluetooth-proxy-2
   wifi_ssid: !secret wifi_name
   wifi_password: !secret wifi_code
   api_pw: !secret api_password
   ota_pw: !secret ota_password
+  
 
 esphome:
   name: ${plug_name}
@@ -22,9 +27,6 @@ wifi:
   ap:
     ssid: ${plug_name}
     password: "qwe12345"
-    
-# ONLY ESP32 BLE TRACKER (comment when using other board)
-esp32_ble_tracker:
 
 # LOGGING
 debug:
@@ -33,7 +35,9 @@ logger:
 
 # HOMEASSISTANT API
 api:
-  password: ${api_pw}
+  port: !secret esp_api_port
+  encryption:
+    key: !secret esp_encryption_key
 
 # OVER THE AIR UPDATES
 ota:
@@ -50,28 +54,14 @@ time:
   - platform: homeassistant
     id: homeassistant_time
 
-# DEFAULT SENSORS ESP8266 ESP32 EDIT FROM HERE
-################################################################################
+dashboard_import:
+  package_import_url: github://esphome/bluetooth-proxies/esp32-generic.yaml@main
 
-binary_sensor:
+esp32_ble_tracker:
+  scan_parameters:
+    interval: 1100ms
+    window: 1100ms
+    active: true
 
-sensor:
-  - platform: wifi_signal
-    name: "${plug_friendly_name} WiFi Signal"
-    update_interval: 60s
-  - platform: uptime
-    name: "${plug_friendly_name} Uptime"
-
-    
-text_sensor:
-  - platform: wifi_info
-    ip_address:
-      name: ${plug_friendly_name} IP Address
-    ssid:
-      name: ${plug_friendly_name} Connected SSID
-    bssid:
-      name: ${plug_friendly_name} Connected BSSID
-
-
-
-
+bluetooth_proxy:
+  active: true

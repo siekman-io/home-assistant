@@ -25,9 +25,11 @@ wifi:
 # Enable logging
 logger:
 
-# Enable Home Assistant API
+# HOMEASSISTANT API
 api:
-  password: ${api_pw}
+  port: !secret esp_api_port
+  encryption:
+    key: !secret esp_encryption_key
 
 # Enable over-the-air updates
 ota:
