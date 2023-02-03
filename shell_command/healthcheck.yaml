@@ -1,1 +1,1 @@
-healthcheck: curl -fsS -m 10 --retry 5 -o /dev/null !secret healthcheck_url
+healthcheck: curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/7e66285f-af19-4903-b947-5d7c93d99bb5
