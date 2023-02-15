@@ -1,7 +1,7 @@
 # Tussenstekker LSC
 substitutions:
   plug_name: plug-01
-  plug_friendly_name: Speakers
+  plug_friendly_name: plug-01
   wifi_ssid: !secret wifi_name
   wifi_password: !secret wifi_code
   api_pw: !secret api_password

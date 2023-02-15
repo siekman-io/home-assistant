@@ -9,7 +9,7 @@
 # Ignore some folders
 .cloud
 .storage
-custom_components
+#custom_components
 node-red
 image
 tts

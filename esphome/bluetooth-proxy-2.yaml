@@ -31,7 +31,7 @@ wifi:
 # LOGGING
 debug:
 logger:
-  level: debug
+  level: VERBOSE
 
 # HOMEASSISTANT API
 api:
@@ -54,14 +54,43 @@ time:
   - platform: homeassistant
     id: homeassistant_time
 
+
+# BLUETOOTH PROXY SETTINGS
+################################################################################
+
 dashboard_import:
   package_import_url: github://esphome/bluetooth-proxies/esp32-generic.yaml@main
 
 esp32_ble_tracker:
-  scan_parameters:
-    interval: 1100ms
-    window: 1100ms
-    active: true
+#  scan_parameters:
+#    interval: 1100ms
+#    window: 1100ms
+#    active: true
 
 bluetooth_proxy:
-  active: true
+#  active: true
+
+
+# DEFAULT SENSORS AND BUTTONS ESP8266 ESP32
+################################################################################
+
+button:
+  - platform: restart
+    name: "${plug_name} restart"
+
+sensor:
+  - platform: wifi_signal
+    name: "${plug_friendly_name} WiFi Signal"
+    update_interval: 60s
+  - platform: uptime
+    name: "${plug_friendly_name} Uptime"
+
+    
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: ${plug_friendly_name} IP Address
+    ssid:
+      name: ${plug_friendly_name} Connected SSID
+    bssid:
+      name: ${plug_friendly_name} Connected BSSID
