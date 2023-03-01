@@ -78,7 +78,7 @@
       title: Deurbel Thuis
   mode: single
 - id: '1642806282174'
-  alias: HealthChecks.io
+  alias: Check.HealthChecks.io
   description: ''
   trigger:
   - platform: time_pattern
@@ -86,6 +86,7 @@
   condition: []
   action:
   - service: shell_command.healthcheck
+    data: {}
   mode: single
 - id: '1644356596967'
   alias: switch.woonkamer.off
@@ -124,28 +125,8 @@
       - switch.shelly_shplg_s_7ae6ad
       - switch.speakers_relais
   mode: single
-- id: '1644444085541'
-  alias: Motion Keuken
-  description: ''
-  use_blueprint:
-    path: homeassistant/motion_light.yaml
-    input:
-      light_target:
-        area_id: keuken
-      no_motion_wait: 720
-      motion_entity: binary_sensor.motionsensor_keuken_occupancy
-- id: '1644444439586'
-  alias: Motion Overloop
-  description: ''
-  use_blueprint:
-    path: homeassistant/motion_light.yaml
-    input:
-      motion_entity: binary_sensor.0x84fd27fffeaa9d36_occupancy
-      light_target:
-        device_id:
-        - 9987846de620c1d696706cb9c206435d
 - id: '1644506953046'
-  alias: Alles uit vannacht
+  alias: Auto.AllesUitNacht
   description: ''
   trigger:
   - platform: time
@@ -166,7 +147,7 @@
       temperature: 17
   mode: single
 - id: '1644507254342'
-  alias: Gang Licht uit
+  alias: Auto.GangLichtUit
   description: ''
   trigger:
   - platform: device
@@ -253,58 +234,6 @@
     type: set_position
     position: 0
   mode: single
-- id: '1663621540535'
-  alias: Slapen Jouke
-  description: 'Telefoon gaat op de oplader en Jouke gaat slapen
-
-    '
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.iphone_jouke_battery_state
-    - sensor.iphone
-    from: Not Charging
-    to: Charging
-  condition:
-  - condition: time
-    after: '23:00:00'
-    before: 00:00:00
-  action:
-  - service: media_player.play_media
-    target:
-      entity_id: media_player.kantoor
-    data:
-      media_content_id: media-source://tts/cloud?message=Welterusten+Jouke&language=nl-NL&gender=female
-      media_content_type: provider
-    metadata:
-      title: Welterusten Jouke
-      thumbnail: https://brands.home-assistant.io/_/cloud/logo.png
-      media_class: app
-      children_media_class:
-      navigateIds:
-      - {}
-      - media_content_type: app
-        media_content_id: media-source://tts
-      - media_content_type: provider
-        media_content_id: media-source://tts/cloud?message=Welterusten+Jouke&language=nl-NL&gender=female
-  - service: light.turn_off
-    data: {}
-    target:
-      area_id:
-      - voorzolder
-      - overloop
-      - schuur
-      - overloop
-      - keuken
-      - hal
-      - badkamer
-      - gang
-  - service: light.toggle
-    data:
-      brightness_pct: 5
-    target:
-      area_id: grote_slaapkamer
-  mode: single
 - id: '1663623674116'
   alias: Watch_Zonnescherm_open
   description: Zonnescherm voor en achter open
@@ -346,24 +275,6 @@
     entity_id: cover.shelly_shsw_25_4c75253337bc
     type: set_position
     position: 0
-  mode: single
-- id: '1663624848086'
-  alias: Alarm_Zonnescherm_windalarm
-  description: Zonnescherm in vanwege wind (source buienradar)
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.buienradar_wind_speed
-    above: 20
-  condition: []
-  action:
-  - service: notify.mobile_app_iphone_jouke
-    data:
-      message: De zonneschermen gaan in ivm te veel wind
-      title: Alarm - Zonnescherm actie
-  - service: automation.trigger
-    data: {}
-    target:
-      entity_id: automation.zonnewering_sluiten
   mode: single
 - id: '1663626065200'
   alias: Info - Vaatwasser klaar
@@ -494,42 +405,6 @@
     target:
       entity_id: input_number.tag1_scanned
   mode: single
-- id: '1664702772041'
-  alias: medicatie.innemen
-  description: ''
-  trigger: []
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: numeric_state
-        entity_id: input_number.tag1_scanned
-        below: 1
-      sequence:
-      - service: timer.start
-        data: {}
-        target:
-          entity_id: timer.timer_medicatie_timer
-      - service: notify.mobile_app_iphone_jouke
-        data:
-          message: meds
-          title: take
-    - conditions:
-      - condition: numeric_state
-        entity_id: input_number.tag1_scanned
-        above: 0
-      sequence:
-      - service: timer.cancel
-        data: {}
-        target:
-          entity_id: timer.timer_medicatie_timer
-      - service: notify.mobile_app_iphone_jouke
-        data:
-          message: Goood !!
-      - service: logbook.log
-        data:
-          message: Medicijnen ingenomen
-  mode: single
 - id: '1664725475892'
   alias: Tag2 scanned
   description: ''
@@ -543,16 +418,6 @@
     target:
       entity_id: timer.timer_medicatie_timer
   mode: single
-- id: '1664738746584'
-  alias: Advanced medication reminder
-  description: ''
-  use_blueprint:
-    path: Aohzan/medication_reminder.yaml
-    input:
-      reminder_time: 07:45:00
-      notify_device: b1a305f35fe979043a75723acaf6a3cd
-      input_boolean: input_boolean.medicijnen
-      ask_later_wait_time: 5
 - id: '1664741624792'
   alias: Timer.Medicatie
   description: ''
@@ -568,61 +433,6 @@
       skip_condition: false
     target:
       entity_id: automation.medicatie_ochtend
-  mode: single
-- id: '1664746150055'
-  alias: schedule.medicatie.ochtend
-  description: ''
-  trigger:
-  - platform: time
-    at: input_datetime.time_medicatie_ochtend
-  - platform: time
-    at: input_datetime.time_medicatie_avond
-  condition:
-  - condition: time
-    before: 00:00:00
-    weekday:
-    - mon
-    - tue
-    - wed
-    - thu
-    - fri
-    after: 00:00:00
-  action:
-  - service: automation.trigger
-    data: {}
-    target:
-      entity_id: automation.medicatie_ochtend
-  - service: input_number.set_value
-    data:
-      value: 0
-    target:
-      entity_id: input_number.tag1_scanned
-  mode: single
-- id: '1664919957968'
-  alias: schedule.medicatie.weekend
-  description: ''
-  trigger:
-  - platform: time
-    at: input_datetime.time_medicatie_weekend_ochtend
-  - platform: time
-    at: input_datetime.time_medicatie_avond
-  condition:
-  - condition: time
-    before: 00:00:00
-    weekday:
-    - sun
-    - sat
-    after: 00:00:00
-  action:
-  - service: automation.trigger
-    data: {}
-    target:
-      entity_id: automation.medicatie_ochtend
-  - service: input_number.set_value
-    data:
-      value: 0
-    target:
-      entity_id: input_number.tag1_scanned
   mode: single
 - id: '1664920241022'
   alias: tag2.announce.boodschappen.auto
@@ -768,44 +578,26 @@
       message: Tygo heeft zijn pil ingenomen.
       title: Medicatie Tygo
   mode: single
-- id: '1668545159401'
-  alias: Check Tygo medicatie
-  description: ''
-  trigger:
-  - platform: time
-    at: input_datetime.tijd_tygo_meds
-  condition:
-  - condition: or
-    conditions:
-    - condition: state
-      entity_id: automation.tag_tag_3_is_gescand
-      state: 'off'
-  action:
-  - service: notify.mobile_app_js_pm14
-    data:
-      title: Medicatie Tygo
-      message: Tygo is medicatie vergeten of heeft vergeten te scannen.
-  mode: single
 - id: '1668709053069'
-  alias: Verwarming-ochtend
+  alias: Auto.VerwarmingOchtendAan
   description: ''
   trigger:
   - platform: time
-    at: 06:30:00
+    at: input_datetime.time_ochtendverwarmingaan
   condition: []
   action:
   - service: climate.set_temperature
     data:
-      temperature: 21
+      temperature: 20
     target:
       entity_id: climate.toon_thermostat
   mode: single
 - id: '1668709124344'
-  alias: verwarming-ochtend-uit
+  alias: Auto.VerwarmingOchtendUit
   description: ''
   trigger:
   - platform: time
-    at: '10:00:00'
+    at: input_datetime.time_ochtendverwarminguit
   condition: []
   action:
   - service: climate.set_temperature
@@ -814,20 +606,83 @@
     target:
       entity_id: climate.toon_thermostat
   mode: single
-- id: '1671785605949'
-  alias: Diego
+- id: '1677695955161'
+  alias: Auto.DoucheLichtUit
   description: ''
-  trigger: []
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: aa5b0bcd79ec817ba4824710ac861786
+    entity_id: light.lamp_badkamer
+    domain: light
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
   condition: []
   action:
-  - service: tts.cloud_say
-    data:
-      entity_id: media_player.diego_slaapkamer
-      message: ' Wakker worden pakketje voor de deur en bel papa'
-      language: nl
-  - service: tts.cloud_say
-    data:
-      message: ' Wakker worden pakketje voor de deur en u bel papa'
-      entity_id: media_player.google_mini_diego
-      language: nl
+  - type: turn_off
+    device_id: aa5b0bcd79ec817ba4824710ac861786
+    entity_id: light.lamp_badkamer
+    domain: light
+  mode: single
+- id: '1677697304053'
+  alias: Auto.LampOverloopUit
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: 9987846de620c1d696706cb9c206435d
+    entity_id: light.lamp_overloop
+    domain: light
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 9987846de620c1d696706cb9c206435d
+    entity_id: light.lamp_overloop
+    domain: light
+  mode: single
+- id: '1677697427744'
+  alias: Auto.LampVoorzolderUit
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: 01b104464517aa7f281a27cce6599598
+    entity_id: light.lamp_voorzolder
+    domain: light
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 01b104464517aa7f281a27cce6599598
+    entity_id: light.lamp_voorzolder
+    domain: light
+  mode: single
+- id: '1677698047423'
+  alias: Auto.KeukenLampUit
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: 0aa7c4ae68124495fca2a5eecb5462a5
+    entity_id: light.lamp_keuken
+    domain: light
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 0aa7c4ae68124495fca2a5eecb5462a5
+    entity_id: light.lamp_keuken
+    domain: light
   mode: single
