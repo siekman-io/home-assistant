@@ -14,11 +14,13 @@
     data: {}
     target:
       device_id:
-      - 5e8f3d886a4b05462c817230ed0ebc2b
-      - bacc5b7fe53462ff64cb41b3281d9e90
-      - e58806cd1f431f9994df8b11eca7442f
-      - 4a0674a29ec7f4abed0d039848681877
       - c0bbd24a7ab2993e98fefabda739a12d
+      entity_id:
+      - light.eettafel_lamp
+      - light.bloom_computer
+      - light.schemerlamp_woonkamer
+      - light.iris_bank
+      - light.shelly_shdm_1_d0aa65
   - service: switch.turn_on
     data: {}
     target:
@@ -105,10 +107,10 @@
     target:
       entity_id:
       - light.eettafel_lamp
-      - light.schemerlamp_tv
       - light.bloom_computer
       - light.iris_bank
       - light.shelly_shdm_1_d0aa65
+      - light.schemerlamp_woonkamer
   - service: switch.turn_off
     data: {}
     target:
@@ -118,12 +120,6 @@
       temperature: 18
     target:
       entity_id: climate.toon_thermostat
-  - service: switch.turn_off
-    data: {}
-    target:
-      entity_id:
-      - switch.shelly_shplg_s_7ae6ad
-      - switch.speakers_relais
   mode: single
 - id: '1644506953046'
   alias: Auto.AllesUitNacht
@@ -685,4 +681,28 @@
     device_id: 0aa7c4ae68124495fca2a5eecb5462a5
     entity_id: light.lamp_keuken
     domain: light
+  mode: single
+- id: '1678050469040'
+  alias: Button.AlleLampenUit
+  description: Alle verlichting in ruimtes uit
+  trigger:
+  - platform: state
+    entity_id:
+    - input_button.button_allelampenuit
+  condition: []
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      area_id:
+      - badkamer
+      - grote_slaapkamer
+      - slaapkamer_diego
+      - gang
+      - keuken
+      - woonkamer
+      - slaapkamer_isabella
+      - slaapkamer_tygo
+      - overloop
+      - voorzolder
   mode: single
