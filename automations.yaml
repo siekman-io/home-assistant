@@ -706,3 +706,106 @@
       - overloop
       - voorzolder
   mode: single
+- id: '1679423579283'
+  alias: switch-dail.woonkamer
+  description: ''
+  use_blueprint:
+    path: freakshock88/philips_hue_tap_dial_switch_zigbee2mqtt_actions_blueprint.yaml
+    input:
+      button_sensor: sensor.dail_woonkamer_action
+      remote_dial_rotate_left_step: []
+      remote_dial_rotate_left_slow:
+      - service: light.turn_on
+        data:
+          brightness_step_pct: -10
+        target:
+          area_id: woonkamer
+          device_id: d134f33492a74fc21769d22c88f690a9
+      remote_dial_rotate_right_slow:
+      - service: light.turn_on
+        data:
+          brightness_step_pct: 10
+        target:
+          area_id: woonkamer
+          device_id: d134f33492a74fc21769d22c88f690a9
+      remote_button_1_hold: []
+      remote_button_1_single_press:
+      - service: light.turn_on
+        data:
+          brightness_step: -10
+        target:
+          area_id: woonkamer
+      remote_button_2_single_press:
+      - service: light.turn_on
+        data:
+          brightness_step_pct: 10
+        target:
+          area_id: woonkamer
+      remote_button_4_single_press:
+      - service: cover.set_cover_position
+        data:
+          position: 100
+        target:
+          entity_id: cover.shelly_shsw_25_4c75253337bc
+      remote_button_4_hold:
+      - service: cover.set_cover_position
+        data:
+          position: 0
+        target:
+          entity_id: cover.shelly_shsw_25_4c75253337bc
+      remote_button_3_single_press:
+      - service: cover.set_cover_position
+        data:
+          position: 100
+        target:
+          entity_id: cover.shelly_shsw_25_c45bbe78fd72
+      remote_button_3_hold:
+      - service: cover.set_cover_position
+        data:
+          position: 0
+        target:
+          entity_id: cover.shelly_shsw_25_c45bbe78fd72
+- id: '1679665531615'
+  alias: Auto.DoucheFan15Min
+  description: Douche afzuiging aan voor 15 minuten
+  trigger: []
+  condition: []
+  action:
+  - service: timer.start
+    data: {}
+    target:
+      entity_id: timer.timer_15minuten
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.shelly_shplg_s_7ae6ad
+  - delay:
+      hours: 0
+      minutes: 15
+      seconds: 0
+      milliseconds: 0
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.shelly_shplg_s_7ae6ad
+  mode: single
+- id: '1679665887587'
+  alias: Auto.DoucheFan30Min
+  description: Douche afzuiging aan voor 30 minuten
+  trigger: []
+  condition: []
+  action:
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.shelly_shplg_s_7ae6ad
+  - delay:
+      hours: 0
+      minutes: 30
+      seconds: 0
+      milliseconds: 0
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.shelly_shplg_s_7ae6ad
+  mode: single

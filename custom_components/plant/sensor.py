@@ -211,7 +211,7 @@ class PlantCurrentStatus(RestoreSensor):
         state = await self.async_get_last_state()
 
         # We do not restore the state for these they are read from the external sensor anyway
-        self._attr_native_value = STATE_UNKNOWN
+        self._attr_native_value = None
         if state:
             if "external_sensor" in state.attributes:
                 self.replace_external_sensor(state.attributes["external_sensor"])
@@ -450,9 +450,9 @@ class PlantCurrentPpfd(PlantCurrentStatus):
             if external_sensor:
                 self._attr_native_value = self.ppfd(external_sensor.state)
             else:
-                self._attr_native_value = STATE_UNKNOWN
+                self._attr_native_value = None
         else:
-            self._attr_native_value = STATE_UNKNOWN
+            self._attr_native_value = None
 
     @callback
     def state_changed(self, entity_id: str, new_state: str) -> None:
@@ -466,9 +466,9 @@ class PlantCurrentPpfd(PlantCurrentStatus):
             if external_sensor:
                 self._attr_native_value = self.ppfd(external_sensor.state)
             else:
-                self._attr_native_value = STATE_UNKNOWN
+                self._attr_native_value = None
         else:
-            self._attr_native_value = STATE_UNKNOWN
+            self._attr_native_value = None
 
 
 class PlantTotalLightIntegral(IntegrationSensor):
@@ -543,6 +543,7 @@ class PlantDailyLightIntegral(UtilityMeterSensor):
             tariff=None,
             unique_id=f"{config.entry_id}-dli",
             suggested_entity_id=None,
+            periodically_resetting=True,
         )
         self.entity_id = async_generate_entity_id(
             f"{DOMAIN_SENSOR}.{{}}", self.name, current_ids={}
